@@ -57,7 +57,7 @@ def aboutme():
     return {
         'first_name': 'Ingrid',
         'last_name': 'Davis',
-        'hobby': 'Outdoors and photography'
+        'hobby': 'Outdoor things and photography'
     }
 
 

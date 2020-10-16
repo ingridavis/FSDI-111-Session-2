@@ -4,3 +4,4 @@
 """ Main app file """
 
 from app import app
+
