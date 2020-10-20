@@ -1,0 +1,30 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<table class="table table-dark">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">First </th>
+        <th scope="col">Last </th>
+        <th scope="col">Hobbies</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for user in users %} 
+
+        <tr>
+            <th scope="row">{{ user[1] }}</th>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[2] }}</td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+  </table>
+
+  {% endblock %}
+
+ 

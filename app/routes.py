@@ -4,8 +4,9 @@
 """ routes file: specifies http routes"""
 
 from app import app  # importing app variable
-from flask import g, request #g is global 
+from flask import g, request, render_template #g is global 
 import sqlite3
+
 
 DATABASE = "online_store"
 
@@ -22,17 +23,20 @@ def get_all_users(): #GET/SCAN/
     cursor.close()
     return results
 
-def create_user(): #POST/CREATE
-    cursor = get_db().execute("insert into user values", ())
-    results = cursor.fetchall()
-    cursor.close()
-    return results
+"""
 
 def get_user(): #GET/READ
     cursor = get_db().execute("SELECT * FROM user where last_name=", ()) 
     if user is None:
         print ('No such user exists')
     results = cursor.fetchall() # returning all the data, PUT, POST
+    cursor.close()
+    return results
+
+
+def create_user(): #POST/CREATE
+    cursor = get_db().execute("insert into user values", ())
+    results = cursor.fetchall()
     cursor.close()
     return results
 
@@ -48,7 +52,11 @@ def delete_user(): #DELETE
         print ('No such user exists')
     cursor.close()
     return results
-
+"""
+@app.route("/read/users")
+def scan_users():
+    users = get_all_users()
+    return render_template("scan_users.html", users=users)
 
 @app.teardown_appcontext 
 def close_connection(exception): #closing when app is shut down
@@ -78,8 +86,14 @@ def get_users():
             }
             body_list.append(temp_dict) # body list will have all tuples
         out["body"] = body_list # putting body list in body field
-        return out
-
+        return render_template(
+            "about_me.html",
+            
+            first_name = out["body"][0].get("first_name"),
+            last_name = out["body"][0].get("last_name"),
+            hobbies = out["body"][0].get("hobbies")
+        )
+"""
     if "POST" in request.method:
         #create new user
         raw_data= create_user()
@@ -93,7 +107,7 @@ def get_users():
         out["body"] = body_list # putting body list in body field
         return out
 
-    if "PUT" in request.method:
+    if "PUT" in request.method: #update
         raw_data= update_user() 
         for item in raw_data: # for each item in list of tuples
             temp_dict = {
@@ -105,7 +119,7 @@ def get_users():
         out["body"] = body_list # putting body list in body field
         return out
     
-    if "DELETE" in request.method:
+    if "DELETE" in request.method: #delete
         raw_data= delete_user() 
         for item in raw_data: # for each item in list of tuples
             temp_dict = {
@@ -116,6 +130,7 @@ def get_users():
             body_list.append(temp_dict) # body list will have all tuples
         out["body"] = body_list # putting body list in body field
         return out
+"""      
 
 
 
@@ -136,4 +151,12 @@ def countdown(number):
 def agent():
     user_agent = request.headers.get("User-Agent")
     return "<p> your user agent is %s</p>" % user_agent
+
+@app.errorhandler(404)
+def page_not_found(exception):
+    return render_template("404.html"), 404
+
+@app.errorhandler(500)
+def server_error(exception):
+    return render_template("500.html"), 500
 
