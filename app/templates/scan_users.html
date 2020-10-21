@@ -20,6 +20,14 @@
             <th scope="row">{{ user[0] }}</th>
             <td>{{ user[1] }}</td>
             <td>{{ user[2] }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('user_delete') }}">
+                <input type="hidden" name="first_name" value="{{ user[0] }}">
+                <input type="hidden" name="last_name" value="{{ user[1] }}">
+                <input type="submit" value="delete user">
+                
+              </form>
+            </td>
         </tr>
 
         {% endfor %}

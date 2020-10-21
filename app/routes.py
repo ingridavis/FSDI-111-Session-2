@@ -41,28 +41,27 @@ def create_user(user):
                     first_name,
                     last_name,
                     hobbies)
-            VALUES (?, ?, ?)""" # ? are placeholders
+            VALUES (?, ?, ?)""" # ? are placeholders, applies to creating data
     cursor = get_db()
     cursor.execute(sql, user) # takes user and match up to the columns
     cursor.commit()
     
     return True       # We're just returning true.
-"""
+
 def delete_user(user): #DELETE
     
-    sql = ""DELETE from user where last_name=(
-                    last_name)
-            VALUES (?)""
+    sql = """DELETE from user where first_name=? and last_name=?"""
     cursor = get_db()
     cursor.execute(sql, user)
-    cursor.delete
     cursor.commit()# commit = save it in the database
+    """
     if user is None:
         print ('No such user exists')
+    """
     cursor.close()
     # return cursor.lastrowid           # We could do this, but we won't for now because our app doesn't need it.
     return True        
-"""
+
 
 # connecting to html page
 
@@ -126,13 +125,16 @@ def get_users():
         create_user((first_name, last_name, hobbies))
         
         return redirect(url_for("get_users"))
-"""
-    if "DELETE" in request.method: 
-        #display users 
+
+@app.route('/users/delete', methods=["POST"])
+def user_delete():
+    if "POST" in request.method: 
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
        
         # if sumbit(delete) button is clicked, delete user
-        delete_user((first_name, last_name, hobbies))
-"""        
+        delete_user((first_name, last_name))   
+        return redirect(url_for("scan_users")) 
       
  
 
