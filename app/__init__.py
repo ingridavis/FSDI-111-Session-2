@@ -11,9 +11,10 @@ from flask_bootstrap import Bootstrap
 
 app = Flask(__name__) # instantiating app variable with Flask class
 Bootstrap(app)
-"""
-app.config["SECRET_KEY"] = "some string"
-"""
 
-from app import routes # importing routes file from app module(folder)
+app.config["SECRET_KEY"]="some string"
+
+
+from app import routes 
+# importing routes file from app module(folder)
 

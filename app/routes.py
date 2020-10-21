@@ -4,7 +4,8 @@
 """ routes file: specifies http routes"""
 
 from app import app  # importing app variable
-from flask import g, request, render_template #g is global 
+from flask import g, request, render_template, redirect, url_for, session#g is global 
+from app.forms.name import NameForm
 import sqlite3
 
 
@@ -32,14 +33,26 @@ def get_user(): #GET/READ
     results = cursor.fetchall() # returning all the data, PUT, POST
     cursor.close()
     return results
-
-
+"""
+"""
 def create_user(): #POST/CREATE
     cursor = get_db().execute("insert into user values", ())
     results = cursor.fetchall()
     cursor.close()
     return results
-
+"""
+def create_user(user):
+    sql = """INSERT INTO user (
+                    first_name,
+                    last_name,
+                    hobbies)
+            VALUES (?, ?, ?)"""
+    cursor = get_db()
+    cursor.execute(sql, user)
+    cursor.commit()
+    
+    return True       # We're just returning true.
+"""
 def update_user(): #PUT/UPDATE
     cursor = get_db().execute("update user set", ())
     results = cursor.fetchall()
@@ -53,30 +66,35 @@ def delete_user(): #DELETE
     cursor.close()
     return results
 """
-@app.route("/read/users")
+
+# connecting to html page
+
+@app.route("/scan/users")
 def scan_users():
     users = get_all_users()
     return render_template("scan_users.html", users=users)
 
+# Closing when app is shut down
 @app.teardown_appcontext 
-def close_connection(exception): #closing when app is shut down
+def close_connection(exception): 
     db = getattr(g, "_database", None)
     if db is not None:
         db.close()
 
-
+# index page
 # @ = decorator that tells flask that when / route is requested, function is called
 @app.route('/')
 def index():  # function
     return "Hello world"
 
-
+# Users route 
 @app.route('/users', methods=["GET", "POST"]) #SESSION 3 complete at end of class
 def get_users():
     # creating an output dictionary 
     out= {"ok": True, "body": ""} # standard formart for our restful API
     body_list = [] # temp list to hold the records we are creating
     if "GET" in request.method:
+        form = NameForm()
         raw_data= get_all_users() # getting all users from database, returned to raw data as tuples
         for item in raw_data: # for each item in list of tuples
             temp_dict = {
@@ -91,21 +109,36 @@ def get_users():
             
             first_name = out["body"][0].get("first_name"),
             last_name = out["body"][0].get("last_name"),
-            hobbies = out["body"][0].get("hobbies")
+            hobbies = out["body"][0].get("hobbies"),
+            form=form
         )
-"""
     if "POST" in request.method:
-        #create new user
-        raw_data= create_user()
-        for item in raw_data: # for each item in list of tuples
-            temp_dict = {
-                "first_name": item[0],
-                "last_name": item[1],
-                "hobbies": item[2]
-            }
-            body_list.append(temp_dict) # body list will have all tuples
-        out["body"] = body_list # putting body list in body field
-        return out
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        hobbies = request.form.get("hobbies")
+        create_user((first_name, last_name, hobbies))
+        
+        return redirect(url_for("get_users"))
+
+
+
+"""
+    NOTES:
+
+    def create_user(user):
+        sql = INSERT INTO user (
+                        first_name,
+                        last_name,
+                        hobbies)
+                VALUES (?, ?, ?) # ? are placeholders
+        cursor = get_db()
+        cursor.execute(sql, user) # takes user and match up to the columns
+        cursor.commit() # commit = save it in the database
+
+# cursor points to a particular record
+
+    # return cursor.lastrowid           # We could do this, but we won't for now because our app doesn't need it.
+    return True                         # We're just returning true.
 
     if "PUT" in request.method: #update
         raw_data= update_user() 
