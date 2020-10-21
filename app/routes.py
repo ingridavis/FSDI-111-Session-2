@@ -22,6 +22,7 @@ def get_all_users(): #GET/SCAN/
     cursor = get_db().execute("SELECT * FROM user", ()) 
     results = cursor.fetchall() # returning all the data, PUT, POST
     cursor.close()
+    
     return results
 
 """
@@ -34,37 +35,33 @@ def get_user(): #GET/READ
     cursor.close()
     return results
 """
-"""
-def create_user(): #POST/CREATE
-    cursor = get_db().execute("insert into user values", ())
-    results = cursor.fetchall()
-    cursor.close()
-    return results
-"""
+
 def create_user(user):
     sql = """INSERT INTO user (
                     first_name,
                     last_name,
                     hobbies)
-            VALUES (?, ?, ?)"""
+            VALUES (?, ?, ?)""" # ? are placeholders
     cursor = get_db()
-    cursor.execute(sql, user)
+    cursor.execute(sql, user) # takes user and match up to the columns
     cursor.commit()
     
     return True       # We're just returning true.
 """
-def update_user(): #PUT/UPDATE
-    cursor = get_db().execute("update user set", ())
-    results = cursor.fetchall()
-    cursor.close()
-    return results
-
-def delete_user(): #DELETE
-    cursor = get_db().execute("delete from user where last_name=", ())
+def delete_user(user): #DELETE
+    
+    sql = ""DELETE from user where last_name=(
+                    last_name)
+            VALUES (?)""
+    cursor = get_db()
+    cursor.execute(sql, user)
+    cursor.delete
+    cursor.commit()# commit = save it in the database
     if user is None:
         print ('No such user exists')
     cursor.close()
-    return results
+    # return cursor.lastrowid           # We could do this, but we won't for now because our app doesn't need it.
+    return True        
 """
 
 # connecting to html page
@@ -73,6 +70,16 @@ def delete_user(): #DELETE
 def scan_users():
     users = get_all_users()
     return render_template("scan_users.html", users=users)
+
+"""
+
+@app.route("/delete/users")
+def del_user():
+    users = delete_user()
+    return render_template("delete_user.html", users=users)
+
+"""
+
 
 # Closing when app is shut down
 @app.teardown_appcontext 
@@ -119,51 +126,15 @@ def get_users():
         create_user((first_name, last_name, hobbies))
         
         return redirect(url_for("get_users"))
-
-
-
 """
-    NOTES:
-
-    def create_user(user):
-        sql = INSERT INTO user (
-                        first_name,
-                        last_name,
-                        hobbies)
-                VALUES (?, ?, ?) # ? are placeholders
-        cursor = get_db()
-        cursor.execute(sql, user) # takes user and match up to the columns
-        cursor.commit() # commit = save it in the database
-
-# cursor points to a particular record
-
-    # return cursor.lastrowid           # We could do this, but we won't for now because our app doesn't need it.
-    return True                         # We're just returning true.
-
-    if "PUT" in request.method: #update
-        raw_data= update_user() 
-        for item in raw_data: # for each item in list of tuples
-            temp_dict = {
-                "first_name": item[0],
-                "last_name": item[1],
-                "hobbies": item[2]
-            }
-            body_list.append(temp_dict) # body list will have all tuples
-        out["body"] = body_list # putting body list in body field
-        return out
-    
-    if "DELETE" in request.method: #delete
-        raw_data= delete_user() 
-        for item in raw_data: # for each item in list of tuples
-            temp_dict = {
-                "first_name": item[0],
-                "last_name": item[1],
-                "hobbies": item[2]
-            }
-            body_list.append(temp_dict) # body list will have all tuples
-        out["body"] = body_list # putting body list in body field
-        return out
-"""      
+    if "DELETE" in request.method: 
+        #display users 
+       
+        # if sumbit(delete) button is clicked, delete user
+        delete_user((first_name, last_name, hobbies))
+"""        
+      
+ 
 
 
 
